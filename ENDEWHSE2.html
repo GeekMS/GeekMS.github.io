@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <script src="https://cdn.bootcdn.net/ajax/libs/blueimp-md5/2.18.0/js/md5.js"></script> 
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script> 
+  <title>​</title> 
+  <script>
+  
+var password="";
+password=prompt('','');
+password = md5(password)
+  if (password != 'fc2e94dcd031c6bd586838c620644286') {
+  window.location.href="https://www.baidu.com";
+  }
+</script> 
+ </head> 
+ <body> 
+  <h1 id="headline" hidden="">隐藏字符加密</h1> 
+  <div class="row"> 
+   <span id="fronttext" hidden="">前段文本：</span> 
+   <textarea type="text" class="form-control" id="plaintext_before" placeholder="输入前段文本" hidden=""></textarea> 
+  </div> 
+  <div class="row"> 
+   <span id="entext" hidden="">加密文本：</span> 
+   <textarea type="text" class="form-control" id="incodes" placeholder="输入加密文本" hidden=""></textarea> 
+  </div> 
+  <div class="row"> 
+   <span id="endtext" hidden="">后段文本：</span> 
+   <textarea type="text" class="form-control" id="plaintext_after" placeholder="输入后段文本" hidden=""></textarea> 
+  </div> 
+  <div class="row"> 
+   <button id="ok" onclick="handleIncode();" hidden="">加密</button> 
+  </div> 
+  <div class="row"> 
+   <span id="pastetext" hidden="">粘贴密文：</span> 
+   <textarea type="text" class="form-control" id="will_decode" placeholder="粘贴密文" hidden=""></textarea> 
+  </div> 
+  <div class="row"> 
+   <button id="decode" onclick="handleDecode();" hidden="">解密</button> 
+  </div> 
+  <div class="row" id="clicktocopyens" hidden="">
+    密文（单击复制） 
+  </div> 
+  <p id="string" onclick="copyToClipboard('string');" hidden=""> </p> 
+  <div class="row" id="clicktocopydes" hidden="">
+    明文（单击复制） 
+  </div> 
+  <p id="outcodes" onclick="copyToClipboard('outcodes');" hidden=""> </p> 
+  <p id="mode" hidden=""> </p> 
+  <script>
+  if (password == 'fc2e94dcd031c6bd586838c620644286') {
+  var  elem  = document.getElementById("headline");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("fronttext");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("entext");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("endtext");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("pastetext");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("clicktocopyens");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("clicktocopydes");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("plaintext_before");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("incodes");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("plaintext_after");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("ok");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("will_decode");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("decode");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("string");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("outcodes");
+elem.removeAttribute("hidden");
+var  elem  = document.getElementById("mode");
+elem.removeAttribute("hidden");
+}
+// 加密
+function incode(str,textBefore,textAfter) {
+var list = str.split("")
+var result = []
+for (var i = 0; i < list.length; i++) {
+if (i != 0) {
+//加空格，分割二进制
+result.push("\u200f")
+}
+var item = list[i]
+//将字符串转化为二进制数据
+var binaryStr = item.charCodeAt()
+.toString(10)
+var binaryStr = binaryStr * 2
+var binaryStr = binaryStr.toString(4)
+result.push(binaryStr)
+}
+result = result.join("")
+var result = result.replace(/0/g, "\u200b").replace(/1/g, "\u200c").replace(/2/g, "\u200d").replace(/3/g, "\u200e")
+return textBefore + result + textAfter;
+}
+// 解密
+function decode(text) {
+let decode = [];
+let getNeedDecrypt=text.match(/(\u200b|\u200c|\u200d|\u200e|\u200f)+/g).join(',')
+var str2 = getNeedDecrypt.split("\u200b").join('0').split("\u200c").join('1').split("\u200d").join('2').split("\u200e").join('3')
+var result = []
+ //通过空格来分开二进制的字符
+var list = str2.split("\u200f")
+ for (var i = 0; i < list.length; i++) {
+var item = list[i]
+var item = parseInt(item, 4)
+var item = item / 2
+//转为文字
+var charValue = String.fromCharCode(item)
+//添加到集合中
+result.push(charValue)
+}
+//返回结果
+result = result.join("")
+needReplace=text.match(/\u200b|\u200c|\u200d|\u200e|\u200f/)
+decode=text.replace(needReplace, '0///0').split("\u200b").join('').split("\u200c").join('').split("\u200d").join('').split("\u200e").join('').split('0///0').join(result)
+return decode;
+}
+function handleIncode() {
+let code_value = document.getElementById("incodes").value;
+let ch_Z = code_value.match(/[\u4e00-\u9fa5]+/g)
+let incodes = code_value;
+if (ch_Z) {
+incodes = incodes.replace(/[\u4e00-\u9fa5]/g, function (t) {
+return '\\u' + parseInt(t.charCodeAt(0), 10).toString(16)
+})
+}
+let code = incode(incodes, document.getElementById("plaintext_before").value, document.getElementById("plaintext_after").value);
+document.getElementById("string").innerHTML = code;
+}
+function handleDecode() {
+let outcodes = decode(document.getElementById("will_decode").value);
+outcodes = outcodes.replace(/\\u[0-9a-z]{4}/g, (t) => {
+return String.fromCharCode(parseInt(t.replace('\\u', ''), 16))
+})
+document.getElementById("outcodes").innerHTML = outcodes;
+}
+function copyToClipboard(elementId) {
+// 创建元素用于复制
+var aux = document.createElement("input");
+// 获取复制内容
+var content = document.getElementById(elementId).innerHTML || document.getElementById(elementId).value;
+// 设置元素内容
+aux.setAttribute("value", content);
+// 将元素插入页面进行调用
+document.body.appendChild(aux);
+// 复制内容
+aux.select();
+// 将内容复制到剪贴板
+document.execCommand("copy");
+// 删除创建元素
+document.body.removeChild(aux);
+//提示
+document.getElementById("mode").innerHTML ="复制成功";
+setTimeout(function() {document.getElementById("mode").innerHTML ="";}, 200);
+}
+</script>  
+ </body>
+</html>
