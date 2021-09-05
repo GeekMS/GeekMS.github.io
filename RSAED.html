@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html style="overflow: hidden;">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" /> 
+  <title>RSA加密解密</title> 
+  <link rel="stylesheet" type="text/css" href="./bootstrap.min.css" /> 
+  <style type="text/css">
+.item{margin-bottom:4px}
+.item:last-child{margin-bottom:0}
+.item .name{display:inline-block;width:70px;text-align:left}
+.item label{font-weight:normal}
+.item button:first-child,.item button:last-child{border-radius:0}
+.panel:last-child{margin-bottom:0}
+textarea{font-family:"Courier New";resize:none}
+</style> 
+ </head> 
+ <body> 
+  <div> 
+   <div class="panel panel-success"> 
+    <div class="panel-heading">
+     请把明文及加密信息填入下面的表单：
+    </div> 
+    <div class="input-group item"> 
+     <span class="input-group-addon"><span class="name">明文</span></span> 
+     <textarea id="input_from" class="form-control" style="height:60px"></textarea> 
+    </div> 
+    <div class="input-group item"> 
+     <span class="input-group-addon"><span class="name">Key Size</span></span> 
+     <div id="key_size" class="form-control" style="min-height:43px;height:auto"> 
+      <div class="btn-group btn-group-sm" role="group"> 
+       <button type="button" class="btn btn-default" data-value="512">512 bit</button> 
+       <button type="button" class="btn btn-success" data-value="1024">1024 bit</button> 
+       <button type="button" class="btn btn-default" data-value="2048">2048 bit</button> 
+       <button type="button" class="btn btn-default" data-value="4096">4096 bit</button> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="input-group item"> 
+     <span class="input-group-addon"><span class="name">Private key</span></span> 
+     <textarea id="input_private_key" class="form-control" style="height:270px;font-size:12px"></textarea> 
+    </div> 
+    <div class="input-group item"> 
+     <span class="input-group-addon"><span class="name">Public key</span></span> 
+     <textarea id="input_public_key" class="form-control" style="height:120px;font-size:12px"></textarea> 
+    </div> 
+   </div> 
+   <div id="btn_toolbar" style="line-height:3em;margin-bottom:22px"> 
+    <a id="btn_encrypt" class="btn btn-success">加密 ↓</a> 
+    <a id="btn_decrypt" class="btn btn-success">解密 ↑</a> 
+    <a id="btn_create_key" class="btn btn-default">生成公钥、私钥</a> 
+    <a id="btn_clear" class="btn btn-default">清空</a> 
+   </div> 
+   <div class="panel panel-success"> 
+    <div class="panel-heading">
+     RSA 加密结果如下：
+    </div> 
+    <textarea id="input_to" class="form-control" style="height:100px"></textarea> 
+   </div> 
+  </div> 
+  <script type="text/javascript" src="./jquery.min.js"></script> 
+  <script type="text/javascript" src="./bootstrap.min.js"></script> 
+  <script type="text/javascript" src="./jsencrypt.min.js"></script> 
+  <script type="text/javascript" src="./tool_common.js"></script> 
+  <script type="text/javascript">
+;jQuery(function($) {
+	$('#btn_toolbar').on('mousedown', function(e) {
+		return false;
+	});
+	$('#btn_encrypt').on('click', function() {
+		showEncryptRSA();
+	});
+	$('#btn_decrypt').on('click', function() {
+		showDecryptRSA();
+	});
+	$('#key_size').on('click', function(e) {
+		if (e.target.tagName == 'BUTTON') {
+			$(e.target)
+				.addClass('btn-success').removeClass('btn-default')
+				.siblings('.btn-success')
+				.removeClass('btn-success').addClass('btn-default');
+		}
+	});
+
+	function prepareKey(crypt) {
+		var private_key = $('#input_private_key').val(),
+			public_key = $('#input_public_key').val();
+
+		if (private_key) {
+			crypt.setPrivateKey(private_key);
+		} else {
+			private_key = crypt.getPrivateKey();
+			public_key = crypt.getPublicKey();
+			$('#input_private_key').val(private_key);
+			$('#input_public_key').val(public_key);
+		}
+	}
+	function showEncryptRSA() {
+		var str = $('#input_from').val(),
+			crypt = new JSEncrypt();
+
+		prepareKey(crypt);
+		str = crypt.encrypt(str);
+
+		$('#input_to').val(str);
+	}
+	function showDecryptRSA() {
+		var str = $('#input_to').val(),
+			crypt = new JSEncrypt();
+
+		prepareKey(crypt);
+		str = crypt.decrypt(str);
+
+		$('#input_from').val(str);
+	}
+	$('#btn_clear').on('click', function() {
+		$('#input_from,#input_to').val('');
+	});
+	$('#btn_create_key').bind('click', function() {
+		var key_size = $('#key_size .btn-success').attr('data-value'),
+			crypt = new JSEncrypt({default_key_size: key_size});
+
+		$('#input_private_key').val(crypt.getPrivateKey());
+		$('#input_public_key').val(crypt.getPublicKey());
+	}).trigger('click');
+});
+</script> 
+ </body>
+</html>
